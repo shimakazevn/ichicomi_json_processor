@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ichicomi JSON Image Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e1e5e9;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e1e5e9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .canvas-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        canvas {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Ichicomi JSON Image Processor</h1>
+            <p>Automatically descramble all images from JSON and download as ZIP</p>
+        </div>
+
+        <div class="main-content">
+            <!-- JSON Input Section -->
+            <div class="section">
+                <h2>📋 JSON Input</h2>
+                <div class="input-group">
+                    <label for="jsonInput">Paste your JSON content here:</label>
+                    <textarea id="jsonInput" placeholder="Paste your JSON content here..."></textarea>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" id="parseJsonBtn">Parse JSON</button>
+                    <button class="btn btn-warning" id="clearJsonBtn">Clear</button>
+                    <button class="btn btn-success" id="loadSampleBtn">Load Sample</button>
+                </div>
+                
+                <div class="info-grid" id="jsonInfo" style="display: none;">
+                    <div class="info-item">
+                        <strong>Total Pages:</strong>
+                        <span id="totalPages">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Image Dimensions:</strong>
+                        <span id="imageDimensions">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Series Title:</strong>
+                        <span id="seriesTitle">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Episode:</strong>
+                        <span id="episodeTitle">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Section -->
+            <div class="section">
+                <h2>⚙️ Processing</h2>
+                <div class="controls">
+                    <button class="btn btn-primary" id="processAllBtn" disabled>Process All Images</button>
+                    <button class="btn btn-success" id="downloadZipBtn" disabled>Download ZIP</button>
+                    <button class="btn btn-warning" id="resetBtn">Reset</button>
+                </div>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0% Complete</div>
+                </div>
+
+                <div class="status" id="status"></div>
+
+                <div class="info-grid" id="processingInfo" style="display: none;">
+                    <div class="info-item">
+                        <strong>Processed:</strong>
+                        <span id="processedCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Remaining:</strong>
+                        <span id="remainingCount">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Current Image:</strong>
+                        <span id="currentImage">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="section" style="margin: 0 40px 40px 40px;">
+            <h2>🖼️ Image Preview</h2>
+            <div class="canvas-container">
+                <canvas id="originalCanvas" style="display: none;"></canvas>
+                <canvas id="descrambledCanvas" style="display: none;"></canvas>
+            </div>
+            <div class="controls">
+                <button class="btn btn-primary" id="previewBtn" disabled>Preview Current</button>
+                <button class="btn btn-success" id="downloadCurrentBtn" disabled>Download Current</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // Global variables
+        let jsonData = null;
+        let currentImageIndex = 0;
+        let processedImages = [];
+        let originalCanvas, descrambledCanvas;
+        let originalCtx, descrambledCtx;
+
+        // DOM elements
+        const jsonInput = document.getElementById('jsonInput');
+        const parseJsonBtn = document.getElementById('parseJsonBtn');
+        const clearJsonBtn = document.getElementById('clearJsonBtn');
+        const loadSampleBtn = document.getElementById('loadSampleBtn');
+        const processAllBtn = document.getElementById('processAllBtn');
+        const downloadZipBtn = document.getElementById('downloadZipBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const previewBtn = document.getElementById('previewBtn');
+        const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
+
+        // Initialize canvases
+        function initCanvases() {
+            originalCanvas = document.getElementById('originalCanvas');
+            descrambledCanvas = document.getElementById('descrambledCanvas');
+            originalCtx = originalCanvas.getContext('2d');
+            descrambledCtx = descrambledCanvas.getContext('2d');
+        }
+
+        // Event listeners
+        parseJsonBtn.addEventListener('click', parseJSON);
+        clearJsonBtn.addEventListener('click', clearJSON);
+        loadSampleBtn.addEventListener('click', loadSampleJSON);
+        processAllBtn.addEventListener('click', processAllImages);
+        downloadZipBtn.addEventListener('click', downloadZIP);
+        resetBtn.addEventListener('click', resetApplication);
+        previewBtn.addEventListener('click', previewCurrentImage);
+        downloadCurrentBtn.addEventListener('click', downloadCurrentImage);
+
+        // Initialize
+        initCanvases();
+
+        // Parse JSON function
+        function parseJSON() {
+            try {
+                const jsonText = jsonInput.value.trim();
+                if (!jsonText) {
+                    showStatus('Please enter JSON content', 'error');
+                    return;
+                }
+
+                jsonData = JSON.parse(jsonText);
+                
+                // Extract image information
+                const pages = jsonData.readableProduct?.pageStructure?.pages || [];
+                const imagePages = pages.filter(page => page.type === 'main' && page.src);
+                
+                if (imagePages.length === 0) {
+                    showStatus('No image pages found in JSON', 'error');
+                    return;
+                }
+
+                // Display information
+                document.getElementById('totalPages').textContent = imagePages.length;
+                document.getElementById('imageDimensions').textContent = `${imagePages[0].width}x${imagePages[0].height}`;
+                document.getElementById('seriesTitle').textContent = jsonData.readableProduct?.series?.title || 'N/A';
+                document.getElementById('episodeTitle').textContent = jsonData.readableProduct?.title || 'N/A';
+                
+                document.getElementById('jsonInfo').style.display = 'grid';
+                document.getElementById('processingInfo').style.display = 'grid';
+                document.getElementById('remainingCount').textContent = imagePages.length;
+                
+                processAllBtn.disabled = false;
+                previewBtn.disabled = false;
+                
+                showStatus(`JSON parsed successfully! Found ${imagePages.length} images.`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error parsing JSON: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear JSON function
+        function clearJSON() {
+            jsonInput.value = '';
+            jsonData = null;
+            document.getElementById('jsonInfo').style.display = 'none';
+            document.getElementById('processingInfo').style.display = 'none';
+            processAllBtn.disabled = true;
+            previewBtn.disabled = true;
+            downloadZipBtn.disabled = true;
+            downloadCurrentBtn.disabled = true;
+            hideStatus();
+        }
+
+        // Load sample JSON function
+        function loadSampleJSON() {
+            const sampleJSON = {
+                "readableProduct": {
+                    "title": "Sample Episode",
+                    "series": {
+                        "title": "Sample Series"
+                    },
+                    "pageStructure": {
+                        "pages": [
+                            { "type": "other" },
+                            {
+                                "src": "https://example.com/image1.jpg",
+                                "width": 1125,
+                                "height": 1600,
+                                "type": "main"
+                            },
+                            {
+                                "src": "https://example.com/image2.jpg",
+                                "width": 1125,
+                                "height": 1600,
+                                "type": "main"
+                            }
+                        ]
+                    }
+                }
+            };
+            
+            jsonInput.value = JSON.stringify(sampleJSON, null, 2);
+            showStatus('Sample JSON loaded. Click "Parse JSON" to continue.', 'info');
+        }
+
+        // Process all images function
+        async function processAllImages() {
+            if (!jsonData) {
+                showStatus('Please parse JSON first', 'error');
+                return;
+            }
+
+            const pages = jsonData.readableProduct.pageStructure.pages;
+            const imagePages = pages.filter(page => page.type === 'main' && page.src);
+            
+            if (imagePages.length === 0) {
+                showStatus('No images to process', 'error');
+                return;
+            }
+
+            processAllBtn.disabled = true;
+            downloadZipBtn.disabled = true;
+            processedImages = [];
+            currentImageIndex = 0;
+
+            // Show progress
+            document.getElementById('progressContainer').style.display = 'block';
+            updateProgress(0, imagePages.length);
+
+            try {
+                for (let i = 0; i < imagePages.length; i++) {
+                    const page = imagePages[i];
+                    currentImageIndex = i;
+                    
+                    updateProgress(i + 1, imagePages.length);
+                    document.getElementById('currentImage').textContent = `Page ${i + 1}`;
+                    document.getElementById('processedCount').textContent = i + 1;
+                    document.getElementById('remainingCount').textContent = imagePages.length - i - 1;
+                    
+                    showStatus(`Processing image ${i + 1}/${imagePages.length}: ${page.src}`, 'info');
+                    
+                    try {
+                        const processedImage = await processImage(page.src, page.width, page.height);
+                        if (processedImage) {
+                            processedImages.push({
+                                data: processedImage,
+                                filename: `page_${String(i + 1).padStart(2, '0')}.png`
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error processing image ${i + 1}:`, error);
+                        showStatus(`Error processing image ${i + 1}: ${error.message}`, 'error');
+                    }
+                }
+
+                showStatus(`All images processed successfully! ${processedImages.length} images ready for download.`, 'success');
+                downloadZipBtn.disabled = false;
+                
+            } catch (error) {
+                showStatus(`Error during processing: ${error.message}`, 'error');
+            } finally {
+                processAllBtn.disabled = false;
+            }
+        }
+
+        // Process individual image function
+        async function processImage(imageUrl, width, height) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = function() {
+                    try {
+                        // Set canvas dimensions
+                        originalCanvas.width = width;
+                        originalCanvas.height = height;
+                        descrambledCanvas.width = width;
+                        descrambledCanvas.height = height;
+                        
+                        // Show canvases
+                        originalCanvas.style.display = 'inline-block';
+                        descrambledCanvas.style.display = 'inline-block';
+                        
+                        // Draw original image
+                        originalCtx.drawImage(img, 0, 0, width, height);
+                        
+                        // Perform descrambling
+                        performColumnMajorDescrambling(img, width, height);
+                        
+                        // Get processed image data
+                        const processedData = descrambledCanvas.toDataURL('image/png', 1.0);
+                        resolve(processedData);
+                        
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image'));
+                };
+                
+                img.src = imageUrl;
+            });
+        }
+
+        // Perform column major descrambling function
+        function performColumnMajorDescrambling(originalImage, canvasWidth, canvasHeight) {
+            const cols = 4;
+            const rows = 4;
+            
+            // Hard coded tile dimensions
+            const baseTileWidth = 280;
+            const baseTileHeight = 400;
+            
+            // The last 5 pixels (1120-1125) should remain unchanged
+            const remainderX = 5; // 1125 - (280 * 4) = 5
+            const remainderY = 0; // 1600 % 4 = 0
+
+            // Fill with white background
+            descrambledCtx.fillStyle = 'white';
+            descrambledCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            // First, copy the last 5 pixels from the original image to the descrambled image
+            // This ensures the 5px remainder stays in the same position
+            descrambledCtx.drawImage(
+                originalImage,
+                1120, 0, 5, canvasHeight,  // Source: last 5 pixels
+                1120, 0, 5, canvasHeight   // Destination: same position
+            );
+            
+            // Direct mapping for 4x4 grid (only the 16 tiles of 280x400)
+            const mapping = [
+                {src: [0,0], dst: [0,0]}, {src: [0,1], dst: [1,0]}, {src: [0,2], dst: [2,0]}, {src: [0,3], dst: [3,0]},
+                {src: [1,0], dst: [0,1]}, {src: [1,1], dst: [1,1]}, {src: [1,2], dst: [2,1]}, {src: [1,3], dst: [3,1]},
+                {src: [2,0], dst: [0,2]}, {src: [2,1], dst: [1,2]}, {src: [2,2], dst: [2,2]}, {src: [2,3], dst: [3,2]},
+                {src: [3,0], dst: [0,3]}, {src: [3,1], dst: [1,3]}, {src: [3,2], dst: [2,3]}, {src: [3,3], dst: [3,3]}
+            ];
+
+            // Process each tile according to mapping (only 280x400 tiles)
+            mapping.forEach((map, index) => {
+                const [srcCol, srcRow] = map.src;
+                const [dstCol, dstRow] = map.dst;
+                
+                // Calculate source tile coordinates (scrambled image)
+                const srcX = srcCol * baseTileWidth;
+                const srcY = srcRow * baseTileHeight;
+                
+                // Source tile dimensions are always 280x400 (no remainder for source)
+                const srcWidth = baseTileWidth;  // Always 280
+                const srcHeight = baseTileHeight; // Always 400
+
+                // Calculate destination tile coordinates (descrambled image)
+                const destX = dstCol * baseTileWidth;
+                const destY = dstRow * baseTileHeight;
+                
+                // Destination tile dimensions are always 280x400 (no remainder for destination)
+                const destWidth = baseTileWidth;  // Always 280
+                const destHeight = baseTileHeight; // Always 400
+
+                // Draw the tile
+                descrambledCtx.drawImage(
+                    originalImage,
+                    srcX, srcY, srcWidth, srcHeight,
+                    destX, destY, destWidth, destHeight
+                );
+            });
+        }
+
+        // Preview current image function
+        function previewCurrentImage() {
+            if (!jsonData || processedImages.length === 0) {
+                showStatus('No processed images to preview', 'error');
+                return;
+            }
+
+            const currentImage = processedImages[currentImageIndex];
+            if (currentImage) {
+                // Convert data URL to canvas for preview
+                const img = new Image();
+                img.onload = function() {
+                    descrambledCanvas.width = img.width;
+                    descrambledCanvas.height = img.height;
+                    descrambledCtx.drawImage(img, 0, 0);
+                    descrambledCanvas.style.display = 'inline-block';
+                    originalCanvas.style.display = 'none';
+                    
+                    downloadCurrentBtn.disabled = false;
+                    showStatus(`Previewing ${currentImage.filename}`, 'success');
+                };
+                img.src = currentImage.data;
+            }
+        }
+
+        // Download current image function
+        function downloadCurrentImage() {
+            if (!jsonData || processedImages.length === 0) {
+                showStatus('No processed images to download', 'error');
+                return;
+            }
+
+            const currentImage = processedImages[currentImageIndex];
+            if (currentImage) {
+                const link = document.createElement('a');
+                link.download = currentImage.filename;
+                link.href = currentImage.data;
+                link.click();
+                showStatus(`Downloaded ${currentImage.filename}`, 'success');
+            }
+        }
+
+        // Download ZIP function
+        async function downloadZIP() {
+            if (processedImages.length === 0) {
+                showStatus('No processed images to download', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Creating ZIP file...', 'info');
+                
+                const zip = new JSZip();
+                
+                // Add each processed image to the ZIP
+                for (const image of processedImages) {
+                    // Convert data URL to blob
+                    const response = await fetch(image.data);
+                    const blob = await response.blob();
+                    
+                    // Add to ZIP
+                    zip.file(image.filename, blob);
+                }
+                
+                // Generate ZIP
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                
+                // Download ZIP
+                const link = document.createElement('a');
+                link.download = 'descrambled_images.zip';
+                link.href = URL.createObjectURL(zipBlob);
+                link.click();
+                
+                showStatus(`ZIP downloaded successfully with ${processedImages.length} images!`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error creating ZIP: ${error.message}`, 'error');
+            }
+        }
+
+        // Update progress function
+        function updateProgress(current, total) {
+            const percentage = Math.round((current / total) * 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${percentage}% Complete (${current}/${total})`;
+        }
+
+        // Reset application function
+        function resetApplication() {
+            clearJSON();
+            processedImages = [];
+            currentImageIndex = 0;
+            document.getElementById('progressContainer').style.display = 'none';
+            originalCanvas.style.display = 'none';
+            descrambledCanvas.style.display = 'none';
+            hideStatus();
+        }
+
+        // Show status function
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        // Hide status function
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        // Load sample JSON on page load
+        window.addEventListener('load', () => {
+            showStatus('Welcome! Click "Load Sample" to see an example or paste your own JSON.', 'info');
+        });
+    </script>
+</body>
+</html> 

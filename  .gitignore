@@ -1,0 +1,17 @@
+# OS
+Thumbs.db
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.code-workspace
+
+# Python http.server cache
+__pycache__/
+
+# Archives
+*.zip
+
+# Logs
+*.log

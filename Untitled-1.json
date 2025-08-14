@@ -1,0 +1,198 @@
+{
+    "readableProduct": {
+        "showSquareThumbnailInRecommendation": false,
+        "title": "\u7b2c6\u8a71",
+        "publishedAt": "2025-08-13T02:00:00Z",
+        "typeName": "episode",
+        "hasPurchased": false,
+        "nextReadableProductUri": null,
+        "pointGettableEpisodeWhenCompleteReading": null,
+        "number": 6,
+        "id": "2550912966069302262",
+        "permalink": "https://ichicomi.com/episode/2550912966069302262",
+        "series": {
+            "id": "2550912965979331606",
+            "title": "3000\u5e74\u5c01\u5370\u3055\u308c\u3057\u90aa\u9f8d\u3061\u3083\u3093\u3068\u53cb\u9054\u306b\u306a\u308a\u307e\u3057\u305f",
+            "thumbnailUri": "https://cdn-scissors.gigaviewer.com/image/scale/5db4e70bda5a4ce9ebf07598df0f5ab4d1176822/enlarge=0;height=484;no_unsharpmask=1;quality=90;version=1;width=484/https%3A%2F%2Fcdn-img.ichicomi.com%2Fpublic%2Fseries-thumbnail%2F2550912965979331606-ed718515486f2aee32ae1e430567e81d%3F1754399784"
+        },
+        "isPublic": true,
+        "imageUrisDigest": "aa5f7722c53d5e4d339d39d9caf1ac10acd8d963",
+        "finishReadingNotificationUri": null,
+        "toc": null,
+        "pageStructure": {
+            "choJuGiga": "baku",
+            "readingDirection": "rtl",
+            "startPosition": "latter",
+            "pages": [
+                {
+                    "type": "other"
+                },
+                {
+                    "contentStart": "10563_006",
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085159-8edd6c6b1891cbfc18d7d7b0f816ccef",
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085160-d6dd13dc58734d496f7b11779b1d693e",
+                    "width": 1125,
+                    "height": 1600
+                },
+                {
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085161-829e263f30f400b6b1b548c526aa5d29",
+                    "width": 1125,
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085162-dd981eaa040ec9016c409cc9245f7100",
+                    "width": 1125,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085163-2dc74d632427dbd6c7eef29b398294c4",
+                    "width": 1125
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085164-0ad76d610dc94b568e1985a4c70e5575",
+                    "width": 1125
+                },
+                {
+                    "type": "main",
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085165-8b78d0adb2e204a5c937a0bb790765c3",
+                    "width": 1125,
+                    "height": 1600
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085167-4995f3c876c4f1de08b7e3e1243ccd7c"
+                },
+                {
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085168-6ee9a5be9efa1cc848cb133df34b8e0a",
+                    "width": 1125,
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085169-376b9e33577dd5cea9199e4c3571dfd2",
+                    "width": 1125
+                },
+                {
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085170-b4091fa7255becb9347b3a2b08910e2b",
+                    "width": 1125,
+                    "type": "main"
+                },
+                {
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085171-135f2be84cf8b8105bffc57b9b9e75f5",
+                    "width": 1125,
+                    "type": "main"
+                },
+                {
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085172-b5b204ac8764209a412fd683e3365b0f",
+                    "width": 1125,
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085173-149dbdeedcdef8f711ddcdf4b3a82555"
+                },
+                {
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085174-0d51f7cac5b2e80f22873bb09ee0f885",
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085175-4a109f799c0990b1632b2ff09aef2233",
+                    "width": 1125
+                },
+                {
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085176-d776817065e0e138dc4de76f879f1e02",
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085177-3673a37f21e1f91a89872d706613c7b8",
+                    "width": 1125
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085178-adad72dcc22729539d1b5b8ffaadf3a8"
+                },
+                {
+                    "type": "main",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085179-54f3141a3443f3c713963d60d290cd93",
+                    "width": 1125
+                },
+                {
+                    "type": "main",
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085180-72e54bdbcc5448fd089ce0761f2d7e0f",
+                    "width": 1125,
+                    "height": 1600
+                },
+                {
+                    "type": "main",
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085181-1f45a78e55044f44e2514d866a63aa02",
+                    "height": 1600
+                },
+                {
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085182-4b317a8f9f28aeb355d879810639bc94",
+                    "width": 1125,
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "width": 1125,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085183-a31c31b6816a5eaaaf6cf5166e337521",
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085184-11d50a47b442253647a40e28691e87fe",
+                    "width": 1125,
+                    "height": 1600,
+                    "type": "main"
+                },
+                {
+                    "type": "main",
+                    "contentEnd": "10563_006",
+                    "height": 1600,
+                    "src": "https://cdn-img.ichicomi.com/public/page/2/2550912966076085185-7864a5b81f7435a5825c581bded495b5",
+                    "width": 1125
+                },
+                {
+                    "type": "other"
+                },
+                {
+                    "type": "backMatter"
+                }
+            ]
+        },
+        "prevReadableProductUri": "https://ichicomi.com/episode/2550912966069302254"
+    }
+}
