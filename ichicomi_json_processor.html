@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -259,21 +260,22 @@
                 margin: 10px;
                 border-radius: 15px;
             }
-            
+
             .main-content {
                 padding: 20px;
             }
-            
+
             .header {
                 padding: 20px;
             }
-            
+
             .header h1 {
                 font-size: 2em;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -294,7 +296,7 @@
                     <button class="btn btn-warning" id="clearJsonBtn">Clear</button>
                     <button class="btn btn-success" id="loadSampleBtn">Load Sample</button>
                 </div>
-                
+
                 <div class="info-grid" id="jsonInfo" style="display: none;">
                     <div class="info-item">
                         <strong>Total Pages:</strong>
@@ -415,11 +417,11 @@
                 }
 
                 jsonData = JSON.parse(jsonText);
-                
+
                 // Extract image information
                 const pages = jsonData.readableProduct?.pageStructure?.pages || [];
                 const imagePages = pages.filter(page => page.type === 'main' && page.src);
-                
+
                 if (imagePages.length === 0) {
                     showStatus('No image pages found in JSON', 'error');
                     return;
@@ -430,16 +432,16 @@
                 document.getElementById('imageDimensions').textContent = `${imagePages[0].width}x${imagePages[0].height}`;
                 document.getElementById('seriesTitle').textContent = jsonData.readableProduct?.series?.title || 'N/A';
                 document.getElementById('episodeTitle').textContent = jsonData.readableProduct?.title || 'N/A';
-                
+
                 document.getElementById('jsonInfo').style.display = 'grid';
                 document.getElementById('processingInfo').style.display = 'grid';
                 document.getElementById('remainingCount').textContent = imagePages.length;
-                
+
                 processAllBtn.disabled = false;
                 previewBtn.disabled = false;
-                
+
                 showStatus(`JSON parsed successfully! Found ${imagePages.length} images.`, 'success');
-                
+
             } catch (error) {
                 showStatus(`Error parsing JSON: ${error.message}`, 'error');
             }
@@ -485,7 +487,7 @@
                     }
                 }
             };
-            
+
             jsonInput.value = JSON.stringify(sampleJSON, null, 2);
             showStatus('Sample JSON loaded. Click "Parse JSON" to continue.', 'info');
         }
@@ -499,7 +501,7 @@
 
             const pages = jsonData.readableProduct.pageStructure.pages;
             const imagePages = pages.filter(page => page.type === 'main' && page.src);
-            
+
             if (imagePages.length === 0) {
                 showStatus('No images to process', 'error');
                 return;
@@ -518,14 +520,14 @@
                 for (let i = 0; i < imagePages.length; i++) {
                     const page = imagePages[i];
                     currentImageIndex = i;
-                    
+
                     updateProgress(i + 1, imagePages.length);
                     document.getElementById('currentImage').textContent = `Page ${i + 1}`;
                     document.getElementById('processedCount').textContent = i + 1;
                     document.getElementById('remainingCount').textContent = imagePages.length - i - 1;
-                    
+
                     showStatus(`Processing image ${i + 1}/${imagePages.length}: ${page.src}`, 'info');
-                    
+
                     try {
                         const processedImage = await processImage(page.src, page.width, page.height);
                         if (processedImage) {
@@ -542,7 +544,7 @@
 
                 showStatus(`All images processed successfully! ${processedImages.length} images ready for download.`, 'success');
                 downloadZipBtn.disabled = false;
-                
+
             } catch (error) {
                 showStatus(`Error during processing: ${error.message}`, 'error');
             } finally {
@@ -555,103 +557,123 @@
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
-                
-                img.onload = function() {
+
+                img.onload = function () {
                     try {
                         // Set canvas dimensions
                         originalCanvas.width = width;
                         originalCanvas.height = height;
                         descrambledCanvas.width = width;
                         descrambledCanvas.height = height;
-                        
+
                         // Show canvases
                         originalCanvas.style.display = 'inline-block';
                         descrambledCanvas.style.display = 'inline-block';
-                        
+
                         // Draw original image
                         originalCtx.drawImage(img, 0, 0, width, height);
-                        
+
                         // Perform descrambling
                         performColumnMajorDescrambling(img, width, height);
-                        
+
                         // Get processed image data
                         const processedData = descrambledCanvas.toDataURL('image/png', 1.0);
                         resolve(processedData);
-                        
+
                     } catch (error) {
                         reject(error);
                     }
                 };
-                
-                img.onerror = function() {
+
+                img.onerror = function () {
                     reject(new Error('Failed to load image'));
                 };
-                
+
                 img.src = imageUrl;
             });
+        }
+
+        function floorToMultiple(value, multiple) {
+            return Math.floor(value / multiple) * multiple;
         }
 
         // Perform column major descrambling function
         function performColumnMajorDescrambling(originalImage, canvasWidth, canvasHeight) {
             const cols = 4;
             const rows = 4;
-            
-            // Hard coded tile dimensions
-            const baseTileWidth = 280;
-            const baseTileHeight = 400;
-            
-            // The last 5 pixels (1120-1125) should remain unchanged
-            const remainderX = 5; // 1125 - (280 * 4) = 5
-            const remainderY = 0; // 1600 % 4 = 0
 
-            // Fill with white background
-            descrambledCtx.fillStyle = 'white';
+            // Compute tile size rounded down to nearest multiple of 4
+            const tileWidth = Math.floor(originalImage.width / cols / 4) * 4;
+            const tileHeight = Math.floor(originalImage.height / rows / 4) * 4;
+
+            // Compute remainders (pixels untouched)
+            const remainderX = originalImage.width - tileWidth * cols;
+            const remainderY = originalImage.height - tileHeight * rows;
+
+            // Clear canvas
+            descrambledCtx.fillStyle = "white";
             descrambledCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-            // First, copy the last 5 pixels from the original image to the descrambled image
-            // This ensures the 5px remainder stays in the same position
-            descrambledCtx.drawImage(
-                originalImage,
-                1120, 0, 5, canvasHeight,  // Source: last 5 pixels
-                1120, 0, 5, canvasHeight   // Destination: same position
-            );
-            
-            // Direct mapping for 4x4 grid (only the 16 tiles of 280x400)
-            const mapping = [
-                {src: [0,0], dst: [0,0]}, {src: [0,1], dst: [1,0]}, {src: [0,2], dst: [2,0]}, {src: [0,3], dst: [3,0]},
-                {src: [1,0], dst: [0,1]}, {src: [1,1], dst: [1,1]}, {src: [1,2], dst: [2,1]}, {src: [1,3], dst: [3,1]},
-                {src: [2,0], dst: [0,2]}, {src: [2,1], dst: [1,2]}, {src: [2,2], dst: [2,2]}, {src: [2,3], dst: [3,2]},
-                {src: [3,0], dst: [0,3]}, {src: [3,1], dst: [1,3]}, {src: [3,2], dst: [2,3]}, {src: [3,3], dst: [3,3]}
-            ];
-
-            // Process each tile according to mapping (only 280x400 tiles)
-            mapping.forEach((map, index) => {
-                const [srcCol, srcRow] = map.src;
-                const [dstCol, dstRow] = map.dst;
-                
-                // Calculate source tile coordinates (scrambled image)
-                const srcX = srcCol * baseTileWidth;
-                const srcY = srcRow * baseTileHeight;
-                
-                // Source tile dimensions are always 280x400 (no remainder for source)
-                const srcWidth = baseTileWidth;  // Always 280
-                const srcHeight = baseTileHeight; // Always 400
-
-                // Calculate destination tile coordinates (descrambled image)
-                const destX = dstCol * baseTileWidth;
-                const destY = dstRow * baseTileHeight;
-                
-                // Destination tile dimensions are always 280x400 (no remainder for destination)
-                const destWidth = baseTileWidth;  // Always 280
-                const destHeight = baseTileHeight; // Always 400
-
-                // Draw the tile
+            // Copy the remainder strips from the original image (right and bottom edges)
+            if (remainderX > 0) {
                 descrambledCtx.drawImage(
                     originalImage,
-                    srcX, srcY, srcWidth, srcHeight,
-                    destX, destY, destWidth, destHeight
+                    tileWidth * cols,
+                    0,
+                    remainderX,
+                    originalImage.height,
+                    tileWidth * cols,
+                    0,
+                    remainderX,
+                    canvasHeight
                 );
-            });
+            }
+
+            if (remainderY > 0) {
+                descrambledCtx.drawImage(
+                    originalImage,
+                    0,
+                    tileHeight * rows,
+                    originalImage.width,
+                    remainderY,
+                    0,
+                    tileHeight * rows,
+                    canvasWidth,
+                    remainderY
+                );
+            }
+
+            // Column-major mapping for full tiles only
+            const mapping = [
+                { src: [0, 0], dst: [0, 0] }, { src: [0, 1], dst: [1, 0] },
+                { src: [0, 2], dst: [2, 0] }, { src: [0, 3], dst: [3, 0] },
+                { src: [1, 0], dst: [0, 1] }, { src: [1, 1], dst: [1, 1] },
+                { src: [1, 2], dst: [2, 1] }, { src: [1, 3], dst: [3, 1] },
+                { src: [2, 0], dst: [0, 2] }, { src: [2, 1], dst: [1, 2] },
+                { src: [2, 2], dst: [2, 2] }, { src: [2, 3], dst: [3, 2] },
+                { src: [3, 0], dst: [0, 3] }, { src: [3, 1], dst: [1, 3] },
+                { src: [3, 2], dst: [2, 3] }, { src: [3, 3], dst: [3, 3] },
+            ];
+
+            const destTileWidth = canvasWidth / cols;
+            const destTileHeight = canvasHeight / rows;
+
+            for (let map of mapping) {
+                const [srcCol, srcRow] = map.src;
+                const [dstCol, dstRow] = map.dst;
+
+                descrambledCtx.drawImage(
+                    originalImage,
+                    srcCol * tileWidth,
+                    srcRow * tileHeight,
+                    tileWidth,
+                    tileHeight,
+                    dstCol * destTileWidth,
+                    dstRow * destTileHeight,
+                    destTileWidth,
+                    destTileHeight
+                );
+            }
         }
 
         // Preview current image function
@@ -665,13 +687,13 @@
             if (currentImage) {
                 // Convert data URL to canvas for preview
                 const img = new Image();
-                img.onload = function() {
+                img.onload = function () {
                     descrambledCanvas.width = img.width;
                     descrambledCanvas.height = img.height;
                     descrambledCtx.drawImage(img, 0, 0);
                     descrambledCanvas.style.display = 'inline-block';
                     originalCanvas.style.display = 'none';
-                    
+
                     downloadCurrentBtn.disabled = false;
                     showStatus(`Previewing ${currentImage.filename}`, 'success');
                 };
@@ -705,30 +727,30 @@
 
             try {
                 showStatus('Creating ZIP file...', 'info');
-                
+
                 const zip = new JSZip();
-                
+
                 // Add each processed image to the ZIP
                 for (const image of processedImages) {
                     // Convert data URL to blob
                     const response = await fetch(image.data);
                     const blob = await response.blob();
-                    
+
                     // Add to ZIP
                     zip.file(image.filename, blob);
                 }
-                
+
                 // Generate ZIP
-                const zipBlob = await zip.generateAsync({type: 'blob'});
-                
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+
                 // Download ZIP
                 const link = document.createElement('a');
                 link.download = 'descrambled_images.zip';
                 link.href = URL.createObjectURL(zipBlob);
                 link.click();
-                
+
                 showStatus(`ZIP downloaded successfully with ${processedImages.length} images!`, 'success');
-                
+
             } catch (error) {
                 showStatus(`Error creating ZIP: ${error.message}`, 'error');
             }
@@ -771,4 +793,5 @@
         });
     </script>
 </body>
-</html> 
+
+</html>
