@@ -1,86 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ichicomi Chapter Image Processor</title>
-<link rel="stylesheet" href="../static/styles.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ichicomi Chapter Image Processor</title>
+    <link rel="stylesheet" href="../static/styles.css" />
+  </head>
 
-<body>
-<div class="container">
-
-  <!-- Header -->
-  <div class="header">
-    <h1>🎨 Ichicomi Chapter Image Processor</h1>
-    <p>Enter a chapter URL and automatically descramble & download all images.</p>
-  </div>
-
-  <div class="main-content">
-
-    <!-- Chapter URL Section -->
-    <div class="section">
-      <h2>🔗 Episode Link</h2>
-      <div class="input-group">
-        <label for="episodeLink">Enter Ichicomi Episode Link:</label>
-        <textarea id="episodeLink" placeholder="https://ichicomi.com/episode/..."></textarea>
-      </div>
-      <div class="controls">
-        <button class="btn btn-primary" id="fetchJsonBtn">Fetch Chapter</button>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🎨 Ichicomi Chapter Image Processor</h1>
+        <p>
+          Enter a chapter URL and automatically descramble & download all
+          images.
+        </p>
       </div>
 
-      <!-- Info Grid -->
-      <div class="info-grid" id="chapterInfo" style="display: none">
-        <div class="info-item"><strong>Series Title:</strong> <span id="seriesTitle">-</span></div>
-        <div class="info-item"><strong>Episode:</strong> <span id="episodeTitle">-</span></div>
-        <div class="info-item"><strong>Total Pages:</strong> <span id="totalPages">-</span></div>
-        <div class="info-item"><strong>Image Dimensions:</strong> <span id="imageDimensions">-</span></div>
-      </div>
-    </div>
+      <div class="main-content">
+        <!-- Chapter Input Section -->
+        <div class="section">
+          <h2>Input Mode</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="linkTab">
+              🔗 Chapter Link
+            </button>
+            <button class="tab-btn" data-tab="jsonTab">
+                📋 JSON Input
+            </button>
+          </div>
 
-    <!-- Processing Section -->
-    <div class="section">
-      <h2>⚙️ Processing</h2>
-      <div class="controls">
-        <button class="btn btn-primary" id="processAllBtn" disabled>Process All Images</button>
-        <button class="btn btn-success" id="downloadZipBtn" disabled>Download ZIP</button>
-        <button class="btn btn-warning" id="resetBtn">Reset</button>
-      </div>
+          <div class="tab-content" id="linkTab" style="display: block">
+            <div class="input-group">
+              <label for="chapterLink">Enter Ichicomi Chapter Link:</label>
+              <textarea
+                id="chapterLink"
+                placeholder="https://ichicomi.com/episode/..."
+              ></textarea>
+            </div>
+            <div class="controls">
+              <button class="btn btn-primary" id="fetchJsonBtn">
+                Fetch JSON
+              </button>
+            </div>
+          </div>
 
-      <div class="progress-container" id="progressContainer">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
+          <div class="tab-content" id="jsonTab" style="display: none">
+            <div class="input-group">
+              <label for="jsonInput">Paste your JSON content here:</label>
+              <textarea
+                id="jsonInput"
+                placeholder="Paste JSON content here..."
+              ></textarea>
+            </div>
+            <div class="controls">
+              <button class="btn btn-primary" id="parseJsonBtn">
+                Parse JSON
+              </button>
+              <button class="btn btn-warning" id="clearJsonBtn">Clear</button>
+              <button class="btn btn-success" id="loadSampleBtn">
+                Load Sample
+              </button>
+            </div>
+          </div>
+
+          <div class="info-grid" id="chapterInfo" style="display: none">
+              <div class="info-item">
+                <strong>Series Title:</strong> <span id="seriesTitle">-</span>
+              </div>
+              <div class="info-item">
+                <strong>Chapter:</strong> <span id="chapterTitle">-</span>
+              </div>
+              <div class="info-item">
+                <strong>Total Pages:</strong> <span id="totalPages">-</span>
+              </div>
+              <div class="info-item">
+                <strong>Image Dimensions:</strong>
+                <span id="imageDimensions">-</span>
+              </div>
+            </div>
         </div>
-        <div class="progress-text" id="progressText">0% Complete</div>
+
+        <!-- Processing Section -->
+        <div class="section">
+          <h2>⚙️ Processing</h2>
+          <div class="controls">
+            <button class="btn btn-primary" id="processAllBtn" disabled>
+              Process All Images
+            </button>
+            <button class="btn btn-success" id="downloadZipBtn" disabled>
+              Download ZIP
+            </button>
+            <button class="btn btn-warning" id="resetBtn">Reset</button>
+          </div>
+
+          <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete</div>
+          </div>
+
+          <div class="status" id="status"></div>
+
+          <div class="info-grid" id="processingInfo" style="display: none">
+            <div class="info-item">
+              <strong>Processed:</strong> <span id="processedCount">0</span>
+            </div>
+            <div class="info-item">
+              <strong>Remaining:</strong> <span id="remainingCount">-</span>
+            </div>
+            <div class="info-item">
+              <strong>Current Image:</strong> <span id="currentImage">-</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="status" id="status"></div>
-
-      <div class="info-grid" id="processingInfo" style="display: none">
-        <div class="info-item"><strong>Processed:</strong> <span id="processedCount">0</span></div>
-        <div class="info-item"><strong>Remaining:</strong> <span id="remainingCount">-</span></div>
-        <div class="info-item"><strong>Current Image:</strong> <span id="currentImage">-</span></div>
+      <!-- Preview Section -->
+      <div class="section" style="margin: 0 40px 40px 40px">
+        <h2>🖼️ Image Preview</h2>
+        <div class="canvas-container">
+          <canvas id="originalCanvas" style="display: none"></canvas>
+          <canvas id="descrambledCanvas" style="display: none"></canvas>
+        </div>
+        <div class="controls">
+          <button class="btn btn-primary" id="previewBtn" disabled>
+            Preview Current
+          </button>
+          <button class="btn btn-success" id="downloadCurrentBtn" disabled>
+            Download Current
+          </button>
+        </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- Preview Section -->
-  <div class="section" style="margin: 0 40px 40px 40px">
-    <h2>🖼️ Image Preview</h2>
-    <div class="canvas-container">
-      <canvas id="originalCanvas" style="display: none"></canvas>
-      <canvas id="descrambledCanvas" style="display: none"></canvas>
-    </div>
-    <div class="controls">
-      <button class="btn btn-primary" id="previewBtn" disabled>Preview Current</button>
-      <button class="btn btn-success" id="downloadCurrentBtn" disabled>Download Current</button>
-    </div>
-  </div>
-
-</div>
-
-<script src="../static/script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-</body>
+    <script src="../static/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  </body>
 </html>

@@ -85,6 +85,10 @@ body {
     transition: border-color 0.3s ease;
 }
 
+#jsonInput {
+    height: 200px;
+}
+
 .input-group textarea:focus {
     outline: none;
     border-color: #3498db;
@@ -238,6 +242,46 @@ canvas {
     flex-wrap: wrap;
     gap: 10px;
     margin: 20px 0;
+}
+
+/* Tabs container */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e1e5e9;
+}
+
+/* Tab buttons */
+.tab-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1em;
+    color: #34495e;
+    transition: all 0.3s ease;
+    border-radius: 10px 10px 0 0;
+    margin-right: 5px;
+}
+
+/* Hover state */
+.tab-btn:hover {
+    background: #ecf0f1;
+}
+
+/* Active tab */
+.tab-btn.active {
+    background: white;
+    color: #3498db;
+    border-bottom: 3px solid #3498db;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Tab content */
+.tab-content {
+    display: none;
 }
 
 @media (max-width: 1200px) {

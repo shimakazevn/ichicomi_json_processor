@@ -6,6 +6,10 @@ let originalCanvas, descrambledCanvas;
 let originalCtx, descrambledCtx;
 
 // DOM elements
+const jsonInput = document.getElementById("jsonInput");
+const parseJsonBtn = document.getElementById("parseJsonBtn");
+const clearJsonBtn = document.getElementById("clearJsonBtn");
+const loadSampleBtn = document.getElementById("loadSampleBtn");
 const processAllBtn = document.getElementById("processAllBtn");
 const downloadZipBtn = document.getElementById("downloadZipBtn");
 const resetBtn = document.getElementById("resetBtn");
@@ -14,7 +18,7 @@ const downloadCurrentBtn = document.getElementById("downloadCurrentBtn");
 
 // Info grid
 const seriesTitleEl = document.getElementById("seriesTitle");
-const episodeTitleEl = document.getElementById("episodeTitle");
+const chapterTitleEl = document.getElementById("chapterTitle");
 const totalPagesEl = document.getElementById("totalPages");
 const imageDimensionsEl = document.getElementById("imageDimensions");
 
@@ -27,6 +31,9 @@ function initCanvases() {
 }
 
 // Event listeners
+parseJsonBtn.addEventListener("click", parseJSON);
+clearJsonBtn.addEventListener("click", clearJSON);
+loadSampleBtn.addEventListener("click", loadSampleJSON);
 processAllBtn.addEventListener("click", processAllImages);
 downloadZipBtn.addEventListener("click", downloadZIP);
 resetBtn.addEventListener("click", resetApplication);
@@ -36,8 +43,24 @@ downloadCurrentBtn.addEventListener("click", downloadCurrentImage);
 // Initialize
 initCanvases();
 
+// Tab switching
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((tab) => (tab.style.display = "none"));
+
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).style.display = "block";
+  });
+});
+
+// Fetch JSON + fallback
 document.getElementById("fetchJsonBtn").addEventListener("click", async () => {
-  const url = document.getElementById("episodeLink").value.trim();
+  const url = document.getElementById("chapterLink").value.trim();
   if (!url) return alert("Please enter a link");
 
   try {
@@ -50,6 +73,11 @@ document.getElementById("fetchJsonBtn").addEventListener("click", async () => {
     const data = await res.json();
     if (data.error) {
       alert("Error: " + data.error);
+
+      // 🔀 Switch to manual JSON input tab
+      const jsonTabBtn = document.querySelector(".tab-btn[data-tab='jsonTab']");
+      if (jsonTabBtn) jsonTabBtn.click();
+
       return;
     }
 
@@ -60,7 +88,12 @@ document.getElementById("fetchJsonBtn").addEventListener("click", async () => {
     const imagePages = pages.filter((page) => page.type === "main" && page.src);
 
     if (imagePages.length === 0) {
-      showStatus("No image pages found in JSON", "error");
+      showStatus("No image pages found in JSON. Paste manually.", "error");
+
+      // 🔀 Auto-switch to JSON Input tab
+      const jsonTabBtn = document.querySelector(".tab-btn[data-tab='jsonTab']");
+      if (jsonTabBtn) jsonTabBtn.click();
+
       return;
     }
 
@@ -71,7 +104,7 @@ document.getElementById("fetchJsonBtn").addEventListener("click", async () => {
     ).textContent = `${imagePages[0].width}x${imagePages[0].height}`;
     document.getElementById("seriesTitle").textContent =
       jsonData.readableProduct?.series?.title || "N/A";
-    document.getElementById("episodeTitle").textContent =
+    document.getElementById("chapterTitle").textContent =
       jsonData.readableProduct?.title || "N/A";
 
     document.getElementById("chapterInfo").style.display = "grid";
@@ -87,8 +120,103 @@ document.getElementById("fetchJsonBtn").addEventListener("click", async () => {
     );
   } catch (err) {
     alert("Failed to fetch JSON: " + err);
+
+    // 🔀 On network/other failure, switch to JSON input too
+    const jsonTabBtn = document.querySelector(".tab-btn[data-tab='json']");
+    if (jsonTabBtn) jsonTabBtn.click();
   }
 });
+
+// Parse JSON function
+function parseJSON() {
+  try {
+    const jsonText = jsonInput.value.trim();
+    if (!jsonText) {
+      showStatus("Please enter JSON content", "error");
+      return;
+    }
+
+    jsonData = JSON.parse(jsonText);
+
+    // Extract image information
+    const pages = jsonData.readableProduct?.pageStructure?.pages || [];
+    const imagePages = pages.filter((page) => page.type === "main" && page.src);
+
+    if (imagePages.length === 0) {
+      showStatus("No image pages found in JSON", "error");
+      return;
+    }
+
+    // Display information
+    document.getElementById("totalPages").textContent = imagePages.length;
+    document.getElementById(
+      "imageDimensions"
+    ).textContent = `${imagePages[0].width}x${imagePages[0].height}`;
+    document.getElementById("seriesTitle").textContent =
+      jsonData.readableProduct?.series?.title || "N/A";
+    document.getElementById("chapterTitle").textContent =
+      jsonData.readableProduct?.title || "N/A";
+
+    document.getElementById("chapterInfo").style.display = "grid";
+    document.getElementById("processingInfo").style.display = "grid";
+    document.getElementById("remainingCount").textContent = imagePages.length;
+
+    processAllBtn.disabled = false;
+    previewBtn.disabled = false;
+
+    showStatus(
+      `JSON parsed successfully! Found ${imagePages.length} images.`,
+      "success"
+    );
+  } catch (error) {
+    showStatus(`Error parsing JSON: ${error.message}`, "error");
+  }
+}
+
+// Clear JSON function
+function clearJSON() {
+  jsonInput.value = "";
+  jsonData = null;
+  document.getElementById("chapterInfo").style.display = "none";
+  document.getElementById("processingInfo").style.display = "none";
+  processAllBtn.disabled = true;
+  previewBtn.disabled = true;
+  downloadZipBtn.disabled = true;
+  downloadCurrentBtn.disabled = true;
+  hideStatus();
+}
+
+// Load sample JSON function
+function loadSampleJSON() {
+  const sampleJSON = {
+    readableProduct: {
+      title: "Sample Chapter",
+      series: {
+        title: "Sample Series",
+      },
+      pageStructure: {
+        pages: [
+          { type: "other" },
+          {
+            src: "https://example.com/image1.jpg",
+            width: 1125,
+            height: 1600,
+            type: "main",
+          },
+          {
+            src: "https://example.com/image2.jpg",
+            width: 1125,
+            height: 1600,
+            type: "main",
+          },
+        ],
+      },
+    },
+  };
+
+  jsonInput.value = JSON.stringify(sampleJSON, null, 2);
+  showStatus('Sample JSON loaded. Click "Parse JSON" to continue.', "info");
+}
 
 // Process all images function
 async function processAllImages() {
@@ -207,7 +335,11 @@ function floorToMultiple(value, multiple) {
   return Math.floor(value / multiple) * multiple;
 }
 
-function performColumnMajorDescrambling(originalImage, canvasWidth, canvasHeight) {
+function performColumnMajorDescrambling(
+  originalImage,
+  canvasWidth,
+  canvasHeight
+) {
   const cols = 4;
   const rows = 4;
 
@@ -254,14 +386,22 @@ function performColumnMajorDescrambling(originalImage, canvasWidth, canvasHeight
 
   // Column-major mapping for full tiles only
   const mapping = [
-    { src: [0, 0], dst: [0, 0] }, { src: [0, 1], dst: [1, 0] },
-    { src: [0, 2], dst: [2, 0] }, { src: [0, 3], dst: [3, 0] },
-    { src: [1, 0], dst: [0, 1] }, { src: [1, 1], dst: [1, 1] },
-    { src: [1, 2], dst: [2, 1] }, { src: [1, 3], dst: [3, 1] },
-    { src: [2, 0], dst: [0, 2] }, { src: [2, 1], dst: [1, 2] },
-    { src: [2, 2], dst: [2, 2] }, { src: [2, 3], dst: [3, 2] },
-    { src: [3, 0], dst: [0, 3] }, { src: [3, 1], dst: [1, 3] },
-    { src: [3, 2], dst: [2, 3] }, { src: [3, 3], dst: [3, 3] },
+    { src: [0, 0], dst: [0, 0] },
+    { src: [0, 1], dst: [1, 0] },
+    { src: [0, 2], dst: [2, 0] },
+    { src: [0, 3], dst: [3, 0] },
+    { src: [1, 0], dst: [0, 1] },
+    { src: [1, 1], dst: [1, 1] },
+    { src: [1, 2], dst: [2, 1] },
+    { src: [1, 3], dst: [3, 1] },
+    { src: [2, 0], dst: [0, 2] },
+    { src: [2, 1], dst: [1, 2] },
+    { src: [2, 2], dst: [2, 2] },
+    { src: [2, 3], dst: [3, 2] },
+    { src: [3, 0], dst: [0, 3] },
+    { src: [3, 1], dst: [1, 3] },
+    { src: [3, 2], dst: [2, 3] },
+    { src: [3, 3], dst: [3, 3] },
   ];
 
   const destTileWidth = canvasWidth / cols;
