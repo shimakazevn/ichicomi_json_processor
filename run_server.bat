@@ -27,18 +27,18 @@ if "%PY%"=="" (
   exit /b 1
 )
 
-:: Start the Python HTTP server in a new window
-start "Python HTTP Server" %PY% -m http.server %PORT% --bind 127.0.0.1
+:: Start the Flask app in a new window
+start "Flask Server" %PY% app.py
 
 :: Small delay to let the server start
 timeout /t 2 /nobreak >nul
 
 :: Open the target page in the default browser
 if exist "%PAGE%" (
-  start "" http://localhost:%PORT%/%PAGE%
+  start "" http://127.0.0.1:%PORT%/%PAGE%
 ) else (
   echo [WARN] %PAGE% not found in this folder. Opening server root.
-  start "" http://localhost:%PORT%/
+  start "" http://127.0.0.1:%PORT%/
 )
 
 endlocal

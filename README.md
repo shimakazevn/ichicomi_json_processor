@@ -1,31 +1,35 @@
 # Ichicomi JSON Processor
 
-Web tool to descramble Ichicomi images from an episode JSON and export high-quality PNGs, zipped.
+Web tool to descramble Ichicomi images from an chapter URL and export high-quality PNGs, zipped.
 
-- Input: paste Ichicomi episode JSON (same structure as `Untitled-1.json`)
+- Input: paste Ichicomi chapter URL
 - Output: PNG files named `page_01.png`, `page_02.png`, ... and a ZIP
-- Algorithm: 4x4 column-major grid, tiles 280x400, keep last 5px at right intact
+- Algorithm: 4x4 column-major grid, tile dimensions: size/4 then rounded down to closest divisable by 8 number, the remainder is left as is
 
 ## Run locally
 
 - Double-click `run_server.bat` (Windows) to start a local server and open the app
 - Or run manually (PowerShell/CMD):
+
   ```bat
-  python -m http.server 8000
+  python app.py
   ```
-  Then open: `http://localhost:8000/ichicomi_json_processor.html`
+
+  Then open: `http://localhost:8000`
 
 ## Usage
 
 1. Open the page
-2. Paste episode JSON
-3. Parse JSON → Process All Images
+2. Paste chapter URL
+3. Fetch Chapter → Process All Images
 4. Download ZIP
 
 ## Files
+
 - `ichicomi_json_processor.html` – the app
 - `run_server.bat` – start local server and open the app
 - `Untitled-1.json` – sample JSON
 
 ## License
-GPL-3.0 
+
+GPL-3.0
