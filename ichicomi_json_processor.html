@@ -596,14 +596,14 @@
             const cols = 4;
             const rows = 4;
 
-            // Compute tile size rounded down to nearest multiple of 4
-            const tileWidth = Math.floor(originalImage.width / cols / 4) * 4;
-            const tileHeight = Math.floor(originalImage.height / rows / 4) * 4;
+            // Compute tile size rounded down to nearest multiple of 8
+            const tileWidth = Math.floor(originalImage.width / cols / 8) * 8;
+            const tileHeight = Math.floor(originalImage.height / rows / 8) * 8;
 
             // Compute remainders (pixels untouched)
             const remainderX = originalImage.width - tileWidth * cols;
             const remainderY = originalImage.height - tileHeight * rows;
-            
+
             // Clear canvas
             descrambledCtx.fillStyle = "white";
             descrambledCtx.fillRect(0, 0, canvasWidth, canvasHeight);
