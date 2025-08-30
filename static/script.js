@@ -404,8 +404,8 @@ function performColumnMajorDescrambling(
     { src: [3, 3], dst: [3, 3] },
   ];
 
-  const destTileWidth = canvasWidth / cols;
-  const destTileHeight = canvasHeight / rows;
+  const destTileWidth = tileWidth;
+  const destTileHeight = tileHeight;
 
   for (let map of mapping) {
     const [srcCol, srcRow] = map.src;
