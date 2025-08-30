@@ -595,63 +595,79 @@
         function performColumnMajorDescrambling(originalImage, canvasWidth, canvasHeight) {
             const cols = 4;
             const rows = 4;
-            
-            // Hard coded tile dimensions
-            const baseTileWidth = 280;
-            const baseTileHeight = 400;
-            
-            // The last 5 pixels (1120-1125) should remain unchanged
-            const remainderX = 5; // 1125 - (280 * 4) = 5
-            const remainderY = 0; // 1600 % 4 = 0
 
-            // Fill with white background
-            descrambledCtx.fillStyle = 'white';
+            // Compute tile size rounded down to nearest multiple of 8
+            const tileWidth = Math.floor(originalImage.width / cols / 8) * 8;
+            const tileHeight = Math.floor(originalImage.height / rows / 8) * 8;
+
+            // Compute remainders (pixels untouched)
+            const remainderX = originalImage.width - tileWidth * cols;
+            const remainderY = originalImage.height - tileHeight * rows;
+
+            // Clear canvas
+            descrambledCtx.fillStyle = "white";
             descrambledCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-            // First, copy the last 5 pixels from the original image to the descrambled image
-            // This ensures the 5px remainder stays in the same position
-            descrambledCtx.drawImage(
-                originalImage,
-                1120, 0, 5, canvasHeight,  // Source: last 5 pixels
-                1120, 0, 5, canvasHeight   // Destination: same position
-            );
-            
-            // Direct mapping for 4x4 grid (only the 16 tiles of 280x400)
-            const mapping = [
-                {src: [0,0], dst: [0,0]}, {src: [0,1], dst: [1,0]}, {src: [0,2], dst: [2,0]}, {src: [0,3], dst: [3,0]},
-                {src: [1,0], dst: [0,1]}, {src: [1,1], dst: [1,1]}, {src: [1,2], dst: [2,1]}, {src: [1,3], dst: [3,1]},
-                {src: [2,0], dst: [0,2]}, {src: [2,1], dst: [1,2]}, {src: [2,2], dst: [2,2]}, {src: [2,3], dst: [3,2]},
-                {src: [3,0], dst: [0,3]}, {src: [3,1], dst: [1,3]}, {src: [3,2], dst: [2,3]}, {src: [3,3], dst: [3,3]}
-            ];
-
-            // Process each tile according to mapping (only 280x400 tiles)
-            mapping.forEach((map, index) => {
-                const [srcCol, srcRow] = map.src;
-                const [dstCol, dstRow] = map.dst;
-                
-                // Calculate source tile coordinates (scrambled image)
-                const srcX = srcCol * baseTileWidth;
-                const srcY = srcRow * baseTileHeight;
-                
-                // Source tile dimensions are always 280x400 (no remainder for source)
-                const srcWidth = baseTileWidth;  // Always 280
-                const srcHeight = baseTileHeight; // Always 400
-
-                // Calculate destination tile coordinates (descrambled image)
-                const destX = dstCol * baseTileWidth;
-                const destY = dstRow * baseTileHeight;
-                
-                // Destination tile dimensions are always 280x400 (no remainder for destination)
-                const destWidth = baseTileWidth;  // Always 280
-                const destHeight = baseTileHeight; // Always 400
-
-                // Draw the tile
+            // Copy the remainder strips from the original image (right and bottom edges)
+            if (remainderX > 0) {
                 descrambledCtx.drawImage(
                     originalImage,
-                    srcX, srcY, srcWidth, srcHeight,
-                    destX, destY, destWidth, destHeight
+                    tileWidth * cols,
+                    0,
+                    remainderX,
+                    originalImage.height,
+                    tileWidth * cols,
+                    0,
+                    remainderX,
+                    canvasHeight
                 );
-            });
+            }
+
+            if (remainderY > 0) {
+                descrambledCtx.drawImage(
+                    originalImage,
+                    0,
+                    tileHeight * rows,
+                    originalImage.width,
+                    remainderY,
+                    0,
+                    tileHeight * rows,
+                    canvasWidth,
+                    remainderY
+                );
+            }
+
+            // Column-major mapping for full tiles only
+            const mapping = [
+                { src: [0, 0], dst: [0, 0] }, { src: [0, 1], dst: [1, 0] },
+                { src: [0, 2], dst: [2, 0] }, { src: [0, 3], dst: [3, 0] },
+                { src: [1, 0], dst: [0, 1] }, { src: [1, 1], dst: [1, 1] },
+                { src: [1, 2], dst: [2, 1] }, { src: [1, 3], dst: [3, 1] },
+                { src: [2, 0], dst: [0, 2] }, { src: [2, 1], dst: [1, 2] },
+                { src: [2, 2], dst: [2, 2] }, { src: [2, 3], dst: [3, 2] },
+                { src: [3, 0], dst: [0, 3] }, { src: [3, 1], dst: [1, 3] },
+                { src: [3, 2], dst: [2, 3] }, { src: [3, 3], dst: [3, 3] },
+            ];
+
+            const destTileWidth = tileWidth;
+            const destTileHeight = tileHeight;
+
+            for (let map of mapping) {
+                const [srcCol, srcRow] = map.src;
+                const [dstCol, dstRow] = map.dst;
+
+                descrambledCtx.drawImage(
+                    originalImage,
+                    srcCol * tileWidth,
+                    srcRow * tileHeight,
+                    tileWidth,
+                    tileHeight,
+                    dstCol * destTileWidth,
+                    dstRow * destTileHeight,
+                    destTileWidth,
+                    destTileHeight
+                );
+            }
         }
 
         // Preview current image function
