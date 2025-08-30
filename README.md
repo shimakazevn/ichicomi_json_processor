@@ -4,9 +4,15 @@ Web tool to descramble Ichicomi images from an chapter URL and export high-quali
 
 - Input: paste Ichicomi chapter URL
 - Output: PNG files named `page_01.png`, `page_02.png`, ... and a ZIP
-- Algorithm: 4x4 column-major grid, tile dimensions: size/4 then rounded down to closest divisable by 8 number, the remainder is left as is
+- Algorithm: 4x4 column-major grid, tile dimensions: size/4 then rounded down to closest divisible by 8 number, the remainder is left as is
 
 ## Run locally
+
+- Install required Python packages:
+
+```bash
+pip install Flask requests beautifulsoup4
+```
 
 - Double-click `run_server.bat` (Windows) to start a local server and open the app
 - Or run manually (PowerShell/CMD):
